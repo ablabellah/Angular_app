@@ -1,0 +1,13 @@
+<div class="form-wrapper sign-up">
+    <button class="close">
+      <mat-icon matDialogClose>close</mat-icon>
+    </button>
+    <form #loginForm="ngForm">
+      <h2>Add a Dossier</h2>
+      <div class="input-group">
+        <input type="text" name="name" id="name" [(ngModel)]="name" required>
+        <label for="name" class="lable">Nom du dossier</label>
+      </div>
+      <button class="submit" type="submit" (click)="submitForm()" matDialogClose>Ajouter Le Document</button>
+    </form>
+  </div>

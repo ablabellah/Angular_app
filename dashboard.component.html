@@ -1,0 +1,107 @@
+import { Component } from '@angular/core';
+import { DocumentService } from '../document.service';
+import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-gestiondocument',
+  templateUrl: './gestiondocument.component.html',
+  styleUrls: ['./gestiondocument.component.css']
+})
+
+export class GestiondocumentComponent {
+  emplacement:string = '';
+  name:string  =  '';
+  extension:string =  '';
+  type:string =  '';
+  taille:number =  0;
+  proprietaire:string = '';
+  
+
+  constructor(private documentService: DocumentService, private auth: AuthService, private router: Router) { 
+    this.proprietaire = this.auth.getCurrentUsername();
+  };
+
+  submitForm() {
+    this.emplacement =  `./${this.data.dossierNom}/${this.name}.${this.extension}`;
+    this.documentService.addDocument(this.emplacement,this.name,this.extension,this.type,this.taille,this.proprietaire).subscribe({
+      next: doc => {
+        console.log('document ajouté');
+      },
+      error: err => {
+        console.log("erreur d'ajout");
+      }
+    });
+  }
+}
+
+
+
+
+----------------------------------
+
+
+
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class DocumentService {
+  private apiUrl = 'http://localhost:3000/document';
+
+  constructor(private http: HttpClient) { }
+
+  getDocuments(prop: string, dossierId?: string): Observable<any[]> {
+    const url = dossierId ? `${this.apiUrl}/${prop}/${dossierId}` : `${this.apiUrl}/${prop}`;
+    return this.http.get<any[]>(url);
+  }
+  addDocument(emplacement: string, name: string, extension: string, type: string, taille: number, proprietaire: string): Observable<any> {
+    const formData = { emplacement, name, extension, type, taille, proprietaire };
+    return this.http.post<any>(this.apiUrl, formData);
+  }
+
+  updateDocument(document: any): Observable<any> {
+    const url = `${this.apiUrl}/${document.id}`;
+    return this.http.put<any>(url, document);
+  }
+
+  deleteDocument(id: string): Observable<any> {
+    const deleteUrl = `${this.apiUrl}/${id}`;
+    return this.http.delete<any>(deleteUrl);
+  }
+}
+
+
+__________________________________________
+
+
+
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class DossierService {
+  private apiUrl = 'http://localhost:3000/dossier';
+
+  constructor(private http: HttpClient) { }
+
+  getDossiers(prop: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${prop}`);
+  }
+
+  addDossier(name: string, proprietaire: string): Observable<any> {
+    const formData = { name, proprietaire };
+    return this.http.post<any>(this.apiUrl, formData);
+  }
+
+  updateDossier(dossier: any): Observable<any> {
+    const url = `${this.apiUrl}/${dossier.id}`;
+    return this.http.put<any>(url, dossier);
+  }
+}
